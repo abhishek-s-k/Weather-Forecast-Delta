@@ -1,0 +1,24 @@
+{
+	"name": "DS_VisualCrossingRestAPI",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_VisualCrossingRestAPI",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"BaseURL": {
+					"value": "@dataset().BaseURL1",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"BaseURL1": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

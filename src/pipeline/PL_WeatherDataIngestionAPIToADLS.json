@@ -1,0 +1,132 @@
+{
+	"name": "PL_WeatherDataIngestionAPIToADLS",
+	"properties": {
+		"activities": [
+			{
+				"name": "APIToADLS",
+				"description": "Get data from Visual Crossing API and store in the ADLS",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set variable1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:02:00",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_VisualCrossingRestAPI",
+						"type": "DatasetReference",
+						"parameters": {
+							"BaseURL1": {
+								"value": "@pipeline().parameters.BaseURLGlobal",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ADLS_JSON",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": {
+								"value": "@pipeline().parameters.Container",
+								"type": "Expression"
+							},
+							"Directory": {
+								"value": "@pipeline().parameters.Directory",
+								"type": "Expression"
+							},
+							"File_Name": {
+								"value": "@variables('File_Name')",
+								"type": "Expression"
+							},
+							"StorageURL": {
+								"value": "@pipeline().parameters.StorageURLGlobal",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "File_Name",
+					"value": {
+						"value": "@concat(pipeline().parameters.File_Name,'_',formatDateTime(utcNow(),'MM-dd-yyyy'),'.json')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"Container": {
+				"type": "string",
+				"defaultValue": "weatherforecastcontainer"
+			},
+			"Directory": {
+				"type": "string",
+				"defaultValue": "Visual Crossing API Data"
+			},
+			"File_Name": {
+				"type": "string",
+				"defaultValue": "WeatherInfo"
+			},
+			"BaseURLGlobal": {
+				"type": "string",
+				"defaultValue": "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Chicago?key=8S38E62WXB43J2KBSPGTQYXZE"
+			},
+			"StorageURLGlobal": {
+				"type": "string",
+				"defaultValue": "https://weatherforecaststorage.dfs.core.windows.net/"
+			}
+		},
+		"variables": {
+			"File_Name": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-01-05T05:19:23Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,9 @@
+{
+	"name": "WeatherForecastDataFactory",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "4d04f0c4-9468-4309-a4e0-c54ed0037fc7",
+		"tenantId": "8c1bdee6-6701-43bb-a39d-b5544b2590b6"
+	}
+}
