@@ -1,0 +1,50 @@
+{
+	"name": "DS_ADLS_JSON",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_weatherForecast",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"URLParam": {
+					"value": "@dataset().StorageURL",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"Container": {
+				"type": "string"
+			},
+			"Directory": {
+				"type": "string"
+			},
+			"File_Name": {
+				"type": "string"
+			},
+			"StorageURL": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().File_Name",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().Directory",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().Container",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

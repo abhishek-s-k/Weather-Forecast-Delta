@@ -1,0 +1,40 @@
+{
+	"name": "Trigger_Weather_Forecast",
+	"properties": {
+		"description": "Trigger for this pipeline",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "PL_WeatherDataIngestionAPIToADLS",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"Container": "weatherforecastcontainer",
+					"Directory": "Visual Crossing API Data",
+					"File_Name": "WeatherInfo",
+					"BaseURLGlobal": "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Chicago?key=8S38E62WXB43J2KBSPGTQYXZE",
+					"StorageURLGlobal": "https://weatherforecaststorage.dfs.core.windows.net/"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2025-01-04T00:00:00",
+				"timeZone": "Central Standard Time",
+				"schedule": {
+					"minutes": [
+						30
+					],
+					"hours": [
+						21
+					]
+				}
+			}
+		}
+	}
+}
