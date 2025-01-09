@@ -1,0 +1,46 @@
+{
+	"name": "DS_ADLS_CSV",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_weatherForecast",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"URLParam": {
+					"value": "@dataset().CSV_Storage_URL",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"CSV_Storage_URL": {
+				"type": "string"
+			},
+			"CSV_Container": {
+				"type": "string"
+			},
+			"CSV_File_Name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().CSV_File_Name",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().CSV_Container",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": ""
+		},
+		"schema": []
+	}
+}
