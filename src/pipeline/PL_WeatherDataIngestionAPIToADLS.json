@@ -6,9 +6,17 @@
 				"name": "APIToADLS",
 				"description": "Get data from Visual Crossing API and store in the ADLS",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Set variable1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Locations_Lookup",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -83,6 +91,8 @@
 			{
 				"name": "Set variable1",
 				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"secureOutput": false,
@@ -95,6 +105,170 @@
 						"value": "@concat(pipeline().parameters.File_Name,'_',formatDateTime(utcNow(),'MM-dd-yyyy'),'.json')",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "Locations_Lookup",
+				"type": "Lookup",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": false,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "DS_ADLS_CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"CSV_Storage_URL": {
+								"value": "@pipeline().parameters.StorageURLGlobal",
+								"type": "Expression"
+							},
+							"CSV_Container": {
+								"value": "@pipeline().parameters.Locations_Container",
+								"type": "Expression"
+							},
+							"CSV_File_Name": {
+								"value": "@coalesce(null)",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Get Metadata1",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_ADLS_CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"CSV_Storage_URL": {
+								"value": "@pipeline().parameters.StorageURLGlobal",
+								"type": "Expression"
+							},
+							"CSV_Container": {
+								"value": "@pipeline().parameters.Locations_Container",
+								"type": "Expression"
+							},
+							"CSV_File_Name": {
+								"value": "@coalesce(null)",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata1').output.childItems",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Locations_Lookup_copy1",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": false,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"dataset": {
+									"referenceName": "DS_ADLS_CSV",
+									"type": "DatasetReference",
+									"parameters": {
+										"CSV_Storage_URL": {
+											"value": "@pipeline().parameters.StorageURLGlobal",
+											"type": "Expression"
+										},
+										"CSV_Container": {
+											"value": "@pipeline().parameters.Locations_Container",
+											"type": "Expression"
+										},
+										"CSV_File_Name": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								"firstRowOnly": false
+							}
+						}
+					]
 				}
 			}
 		],
@@ -118,6 +292,14 @@
 			"StorageURLGlobal": {
 				"type": "string",
 				"defaultValue": "https://weatherforecaststorage.dfs.core.windows.net/"
+			},
+			"Locations_Container": {
+				"type": "string",
+				"defaultValue": "locations"
+			},
+			"Locations_File_Name": {
+				"type": "string",
+				"defaultValue": "Locations.csv"
 			}
 		},
 		"variables": {
